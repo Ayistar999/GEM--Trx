@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEM-TRX Mining</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+        }
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .mining-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        #countdown {
+            font-family: monospace;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 50;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header Section -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <h1 class="text-2xl font-bold">GEM-TRX</h1>
+                </div>
+                <nav>
+                    <ul class="flex space-x-6">
+                        <li><a href="#" class="hover:text-gray-200 font-medium">Home</a></li>
+                        <li><a href="#" class="hover:text-gray-200 font-medium">Plans</a></li>
+                        <li><a href="#" class="hover:text-gray-200 font-medium">Dashboard</a></li>
+                        <li><button onclick="showWithdrawalModal()" class="hover:text-gray-200 font-medium">Withdrawal</button></li>
+                        <li><a href="#" class="hover:text-gray-200 font-medium">Support</a></li>
+                    </ul>
+                </nav>
+                <button class="bg-white text-purple-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
+                          
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Summary Section -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Total Balance</h2>
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Total TRX Balance</p>
+                        <p class="text-2xl font-bold mining-animation">0.99765694 TRX <span class="text-sm text-green-600">(0.00012345 TRX/s)</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Active Mining Plan</h2>
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Active Plan</p>
+                        <p class="text-2xl font-bold">1 Plan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Latest Transaction</h2>
+            <div class="space-y-4" id="recentTransactions">
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium">RahulK purchased Starter Plan (2 TRX)</p>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mining Plans Section -->
+    <section class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Available Mining Plans</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Plan 1 - Starter Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                <div class="gradient-bg px-6 py-4">
+                    <h3 class="text-xl font-bold text-white">Starter Plan</h3>
+                    <p class="text-purple-100">Perfect for beginners</p>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-3">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Mining Power:</span>
+                            <span class="font-medium">50W</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Term:</span>
+                            <span class="font-medium">3 Days</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Daily Profit:</span>
+                            <span class="font-medium text-green-600">2.5 TRX</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Total Profit:</span>
+                            <span class="font-medium">7.5 TRX</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Referral Bonus:</span>
+                            <span class="font-medium">5%</span>
+                        </li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">Price</p>
+                                <p class="text-2xl font-bold">2 TRX</p>
+                            </div>
+                            <button onclick="showPaymentInterface('Starter Plan', '2 TRX')" class="gradient-bg text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition">
+                                Invest Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plan 2 - Advanced Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                <div class="gradient-bg px-6 py-4">
+                    <h3 class="text-xl font-bold text-white">Advanced Plan</h3>
+                    <p class="text-purple-100">For experienced miners</p>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-3">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Mining Power:</span>
+                            <span class="font-medium">200W</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Term:</span>
+                            <span class="font-medium">2 Days</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Daily Profit:</span>
+                            <span class="font-medium text-green-600">35 TRX</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Total Profit:</span>
+                            <span class="font-medium">70 TRX</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Referral Bonus:</span>
+                            <span class="font-medium">7%</span>
+                        </li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">Price</p>
+                                <p class="text-2xl font-bold">25 TRX</p>
+                            </div>
+                            <button onclick="showPaymentInterface('Advanced Plan', '25 TRX')" class="gradient-bg text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition">
+                                Invest Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Plan 3 - Pro Plan -->
+            <div class="plan-card bg-white rounded-xl shadow-md overflow-hidden transition duration-300">
+                <div class="gradient-bg px-6 py-4">
+                    <h3 class="text-xl font-bold text-white">Pro Plan</h3>
+                    <p class="text-purple-100">For professional miners</p>
+                </div>
+                <div class="p-6">
+                    <ul class="space-y-3">
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Mining Power:</span>
+                            <span class="font-medium">500W</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Term:</span>
+                            <span class="font-medium">1 Day</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Daily Profit:</span>
+                            <span class="font-medium text-green-600">200 TRX</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Total Profit:</span>
+                            <span class="font-medium">200 TRX</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-gray-600">Referral Bonus:</span>
+                            <span class="font-medium">10%</span>
+                        </li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500 text-sm">Price</p>
+                                <p class="text-2xl font-bold">90 TRX</p>
+                            </div>
+                            <button onclick="showPaymentInterface('Pro Plan', '90 TRX')" class="gradient-bg text-white px-6 py-2 rounded-lg font-medium hover:opacity-90 transition">
+                                Invest Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Interface Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">GEM FARM ACTIVATION</h2>
+                <p class="text-purple-600 font-medium mb-6">CONGRATULATIONS ON JOINING THE FUTURE OF AI GEM MINING!</p>
+                
+                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-semibold mb-2">AI GEM PURCHASE</h3>
+                    <p class="text-gray-600 mb-1">Purchase Amount</p>
+                    <p class="text-2xl font-bold" id="purchaseAmount">2 TRX</p>
+                </div>
+                
+                <div class="mb-6">
+                    <p class="text-sm text-gray-500 mb-2">Network: Tron (TRC20)</p>
+                    <div class="bg-white p-3 rounded border border-gray-300 mb-2 flex justify-between items-center">
+                        <p class="text-sm font-mono break-all">THHTB71drDhz5z2BTsfxKjNkE1TkLNdAx7</p>
+                        <button onclick="copyToClipboard()" class="text-purple-600 hover:text-purple-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        </button>
+                    </div>
+                    <button onclick="shareAddress()" class="text-sm text-purple-600 font-medium">Save and Share Address</button>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <div class="inline-block bg-white p-2 rounded">
+                        <!-- QR Code Placeholder -->
+                        <div class="w-32 h-32 bg-gray-200 flex items-center justify-center">
+                            <span class="text-xs text-gray-500">QR Code Here</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">SCAN WITH YOUR CRYPTO WALLET APP</p>
+                </div>
+                
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-medium">Time remaining:</span>
+                    <span id="countdown" class="font-mono">24m 0s</span>
+                </div>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700 font-medium">Confirmation Required</p>
+                            <p class="text-sm text-yellow-600">1 NETWORK CONFIRMATIONS NEEDED</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700 font-medium">Activation Time</p>
+                            <p class="text-sm text-green-600">YOUR AI GEM WILL ACTIVATE WITHIN 1 MINUTE AFTER PAYMENT</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="paymentMade()" class="w-full bg-purple-600 text-white py-2 rounded-lg font-medium hover:bg-purple-700 transition">
+                    I've Made Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Modal -->
+    <div id="withdrawalModal" class="modal">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">TRX EARNINGS WITHDRAWAL</h2>
+                <p class="text-purple-600 font-medium mb-6">WITHDRAW YOUR TRX SAFELY AND EASILY</p>
+                
+                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                    <h3 class="font-semibold mb-2">WITHDRAW FUNDS</h3>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Available Balance:</span>
+                        <span class="text-xl font-bold" id="liveTrxAmount">0.99765694 TRX</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600"> USD Value:</span>
+                        <span class="text-lg">$0.24 USD</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4 text-left">
+                    <label class="block text-gray-700 mb-2">Amount to Withdraw (TRX)</label>
+                    <input type="number" id="withdrawAmount" class="w-full p-2 border border-gray-300 rounded" 
+                           min="2" max="10000000" step="0.00000001" placeholder="Enter TRX amount">
+                    <div class="flex justify-between text-sm text-gray-500 mt-1">
+                        <span>Minimum: 2 TRX</span>
+                        <span>Maximum: 10,000,000 TRX</span>
+                    </div>
+                </div>
+                
+                <div class="mb-4 text-left">
+                    <label class="block text-gray-700 mb-2">TRX Wallet Address</label>
+                    <input type="text" id="walletAddress" class="w-full p-2 border border-gray-300 rounded" 
+                           placeholder="THHTB71drDhz5z2BTsfxKjNkE1" value="THHTB71drDhz5z2BTsfxKjNkE1">
+                </div>
+                
+                <div class="mb-6 text-left">
+                    <p class="text-gray-600">Withdrawal fee: <span class="font-medium">1 TRX</span> (deducted from amount)</p>
+                </div>
+                
+                <button onclick="processWithdrawal()" class="w-full bg-purple-600 text-white py-3 rounded-lg font-medium hover:bg-purple-700 transition mb-4">
+                    CONFIRM WITHDRAWAL
+                </button>
+                
+                <button onclick="hideWithdrawalModal()" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-300 transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">GEM-TRX</h3>
+                    <p class="text-gray-400">Welcome to your AI gem mining journey.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Plans</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Legal</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Disclaimer</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-400">support@gem-trx.com</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-400">+91 98765 43210</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2023 GEM-TRX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Show payment interface
+        function showPaymentInterface(planName, amount) {
+            document.getElementById('purchaseAmount').textContent = amount;
+            startCountdown(24 * 60);
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+        
+        // Hide payment interface
+        function hidePaymentInterface() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+        
+        // Show withdrawal modal
+        function showWithdrawalModal() {
+            // Get the current balance from the dashboard
+            const currentBalance = parseFloat(document.querySelector('.mining-animation').textContent.split(' ')[0]);
+            document.getElementById('liveTrxAmount').textContent = currentBalance.toFixed(8) + ' TRX';
+            
+            // Calculate USD value (example rate)
+            const usdValue = currentBalance * 0.24;
+            document.querySelector('#withdrawalModal .text-lg').textContent = '$' + usdValue.toFixed(2) + ' USD';
+            
+            document.getElementById('withdrawalModal').style.display = 'flex';
+        }
+        
+        // Hide withdrawal modal
+        function hideWithdrawalModal() {
+            document.getElementById('withdrawalModal').style.display = 'none';
+        }
+        
+        // Process withdrawal
+        function processWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const walletAddress = document.getElementById('walletAddress').value;
+            const currentBalance = parseFloat(document.querySelector('.mining-animation').textContent.split(' ')[0]);
+            
+            if (!amount || amount < 2) {
+                alert('Minimum withdrawal amount is 2 TRX');
+                return;
+            }
+            
+            if (amount > currentBalance) {
+                alert('Insufficient balance for this withdrawal');
+                return;
+            }
+            
+            if (!walletAddress) {
+                alert('Please enter your TRX wallet address');
+                return;
+            }
+            
+            alert(`Withdrawal request for ${amount} TRX to ${walletAddress} has been submitted!`);
+            hideWithdrawalModal();
+        }
+        
+        // Simulate mining animation
+        let balance = 0.99765694; // Starting with the balance from your PDF
+        const miningSpeed = 0.00012345;
+        
+        function updateMiningBalance() {
+            balance += miningSpeed;
+            document.querySelector('.mining-animation').textContent = balance.toFixed(8) + ' TRX (0.00012345 TRX/s)';
+        }
+        
+        // Update balance every second
+        setInterval(updateMiningBalance, 1000);
+        
+        // Show only the latest transaction
+        function showLatestTransaction() {
+            const transactions = [
+                "RahulK purchased Starter Plan (2 TRX)",
+                "PriyaM withdrew 7.5 TRX",
+                "AmitS purchased Advanced Plan (25 TRX)",
+                "NehaP deposited 200 TRX"
+            ];
+            
+            const statuses = ["Completed", "Pending", "Processing"];
+            
+            const transactionsContainer = document.getElementById('recentTransactions');
+            transactionsContainer.innerHTML = '';
+            
+            const randomTransaction = transactions[Math.floor(Math.random() * transactions.length)];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            
+            const transactionDiv = document.createElement('div');
+            transactionDiv.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-lg';
+            
+            let statusClass = "bg-green-100 text-green-800";
+            if (randomStatus === "Pending") statusClass = "bg-yellow-100 text-yellow-800";
+            if (randomStatus === "Processing") statusClass = "bg-blue-100 text-blue-800";
+            
+            transactionDiv.innerHTML = `
+                <div>
+                    <p class="font-medium">${randomTransaction}</p>
+                </div>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${randomStatus}</span>
+            `;
+            
+            transactionsContainer.appendChild(transactionDiv);
+        }
+        
+        // Countdown timer for payment
+        function startCountdown(seconds) {
+            let remaining = seconds;
+            const countdownElement = document.getElementById('countdown');
+            
+            const interval = setInterval(() => {
+                const minutes = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                
+                countdownElement.textContent = `${minutes}m ${secs}s`;
+                
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    countdownElement.textContent = "Expired";
+                    countdownElement.classList.add('text-red-600');
+                } else {
+                    remaining--;
+                }
+            }, 1000);
+        }
+        
+        // Copy to clipboard function
+        function copyToClipboard() {
+            const address = "THHTB71drDhz5z2BTsfxKjNkE1TkLNdAx7";
+            navigator.clipboard.writeText(address).then(() => {
+                alert('Address copied to clipboard!');
+            });
+        }
+        
+        // Share address function
+        function shareAddress() {
+            copyToClipboard();
+        }
+        
+        // Payment made function
+        function paymentMade() {
+            alert('Thank you for your payment! Your mining will start soon.');
+            hidePaymentInterface();
+            window.location.href = "#"; // Redirect to home page
+        }
+        
+        // Initialize
+        window.onload = function() {
+            showLatestTransaction();
+            setInterval(showLatestTransaction, 30000);
+            document.getElementById('paymentModal').style.display = 'none';
+            document.getElementById('withdrawalModal').style.display = 'none';
+        };
+    </script>
+</body>
+</html>
